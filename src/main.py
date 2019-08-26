@@ -4,24 +4,19 @@ import time
 from bs4 import BeautifulSoup
 import re
 from collections import defaultdict,namedtuple
-
-
-#Return the     
+   
 def getLinesOfToplist(InputSoup) -> list:
     soup = InputSoup
-    N = namedtuple("N", "number, artist, title, position")
     Lines = []
     ulsoup = soup.find("ul").find_all("li")
     for line in soup.find("ul").find_all("li"):
         _number = line.find("div", class_="number").get_text()
         _artist = line.find("div", class_="artist").get_text()
-        _title = line.find("div", class_="title-track").get_text()
+        _title = line.find("div", class_="title-track").get_text()[1:]
         _position = line.find("div", class_="position").get_text()
-        Lines.append(N(number=_number,artist=_artist,title=_title,position=_position))
+        Lines.append([_number,_artist,_title,_position])
     return Lines
     
-
-
 #Returns structure of the website parsed by Beautiful soup
 def getSoupFormatOfSite(URL: str): 
     response = requests.get(URL)
@@ -32,14 +27,25 @@ def getTheMostRecentToplistLink(soup) -> str:
     Target = soup.find("a", id=re.compile("LinkArea:Vote\d*"))
     return "https://www.antyradio.pl" + Target["href"]
 
+def printTable(targetSoup):
+    size = max(map(lambda x: sum(map(lambda y: len(y), x)),targetSoup))
+    print(str.center("TURBO TOP LIST",size,"="))
+    for line in targetSoup:
+        print(str.center("{}. {} - {} {}\n".format(*line),size))
+        print(size*'=')
+    
+
+
 #Main Function
 def main():
     MainURL = "https://www.antyradio.pl/Radio/Turbo-Top" #Main URL to get the latest Toplist
     MainSoup = getSoupFormatOfSite(MainURL)
     WantedURL = getTheMostRecentToplistLink(MainSoup)
     TargetSoup = getSoupFormatOfSite(WantedURL)
-    for line in getLinesOfToplist(TargetSoup):
-        print(f"{line.number}. {line.artist}\"{line.title[1:]}\"\t{line.position}")
+    Lines = getLinesOfToplist(TargetSoup)
+    printTable(Lines)
+
+        
 
 #Run main function
 if __name__ == "__main__":
