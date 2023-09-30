@@ -33,9 +33,7 @@ def printTable(targetSoup):
     for line in targetSoup:
         print(str.center("{}. {} - {} {}\n".format(*line),size))
         print(size*'=')
-    
-
-
+       
 #Main Function
 def main():
     MainURL = "https://www.antyradio.pl/Radio/Turbo-Top" #Main URL to get the latest Toplist
@@ -44,8 +42,6 @@ def main():
     TargetSoup = getSoupFormatOfSite(WantedURL)
     Lines = getLinesOfToplist(TargetSoup)
     printTable(Lines)
-
-        
 
 #Run main function
 if __name__ == "__main__":
